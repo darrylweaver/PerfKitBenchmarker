@@ -70,6 +70,7 @@ HOST_EXISTS_STATES = frozenset(
 HOST_RELEASED_STATES = frozenset(['released', 'released-permanent-failure'])
 KNOWN_HOST_STATES = HOST_EXISTS_STATES | HOST_RELEASED_STATES
 
+<<<<<<< 7ce250dbd0cd5c93b0781be04621693ae93cdc1f
 
 def GetRootBlockDeviceSpecForImage(image_id):
   """ Queries the CLI and returns the root block device specification as a dict.
@@ -81,6 +82,17 @@ def GetRootBlockDeviceSpecForImage(image_id):
     The root block device specification as returned by the AWS cli,
     as a Python dict. If the image is not found, or if the response
     is malformed, an exception will be raised.
+=======
+def GetRootBlockDeviceSpecForImage(image_id):
+  """ Queries the CLI and returns the root block device specification as a dict.
+
+  Args:
+    image_id: The EC2 image id to query
+
+  Returns: 
+    The root block device specification as returned by the AWS cli, as a Python dict.
+    If the image is not found, or if the response is malformed, an exception will be raised.
+>>>>>>> Tests pass for GetBlockDeviceMap
   """
   command = util.AWS_PREFIX + [
       'ec2',
@@ -95,7 +107,11 @@ def GetRootBlockDeviceSpecForImage(image_id):
   image_spec = images[0]
   root_device_name = image_spec['RootDeviceName']
   block_device_mappings = image_spec['BlockDeviceMappings']
+<<<<<<< 7ce250dbd0cd5c93b0781be04621693ae93cdc1f
   root_block_device_dict = next((x for x in block_device_mappings if
+=======
+  root_block_device_dict = next((x for x in block_device_mappings if 
+>>>>>>> Tests pass for GetBlockDeviceMap
                                  x['DeviceName'] == root_device_name))
   return root_block_device_dict
 
@@ -106,20 +122,32 @@ def GetBlockDeviceMap(machine_type, root_volume_size_gb=None, image_id=None):
   Args:
     machine_type: The machine type to create a block device map for.
     root_volume_size: The desired size of the root volume, in GiB,
+<<<<<<< 7ce250dbd0cd5c93b0781be04621693ae93cdc1f
       or None to the default provided by AWS.
     image: The image id (AMI) to use in order to lookup the default
       root device specs. This is only required if root_volume_size
       is specified.
+=======
+      or None to the default provided by AWS
+    image: The image id (AMI) to use in order to lookup the default root device specs.
+      This is only required if root_volume_size is provided.
+>>>>>>> Tests pass for GetBlockDeviceMap
 
   Returns:
     The json representation of the block device map for a machine compatible
     with the AWS CLI, or if the machine type has no local disks, it will
+<<<<<<< 7ce250dbd0cd5c93b0781be04621693ae93cdc1f
     return None. If root_volume_size_gb and image_id are provided, the block
     device map will include the specification for the root volume.
+=======
+    return None. If root_volume_size_gb and image_id are provided, the block device 
+    map will include the specification for the root volume.
+>>>>>>> Tests pass for GetBlockDeviceMap
   """
   mappings = []
   if root_volume_size_gb is not None:
     if image_id is None:
+<<<<<<< 7ce250dbd0cd5c93b0781be04621693ae93cdc1f
       raise ValueError(
           "image_id must be provided if root_volume_size_gb is specified")
     root_block_device = GetRootBlockDeviceSpecForImage(image_id)
@@ -133,6 +161,18 @@ def GetBlockDeviceMap(machine_type, root_volume_size_gb=None, image_id=None):
       mappings.append({
           'VirtualName': 'ephemeral%s' % i,
           'DeviceName': '/dev/xvd%s' % chr(ord(DRIVE_START_LETTER) + i)})
+=======
+      raise ValueError("image_id must be provided if root_volume_size_gb is specified")
+    root_block_device = GetRootBlockDeviceSpecForImage(image_id)
+    root_block_device['Ebs']['VolumeSize'] = root_volume_size_gb
+    mappings.append(root_block_device)
+    
+
+  if machine_type in NUM_LOCAL_VOLUMES:
+    for i in xrange(NUM_LOCAL_VOLUMES[machine_type]):
+      mappings.append({'VirtualName': 'ephemeral%s' % i,
+                     'DeviceName': '/dev/xvd%s' % chr(ord(DRIVE_START_LETTER) + i)})
+>>>>>>> Tests pass for GetBlockDeviceMap
   if len(mappings):
     return json.dumps(mappings)
   return None

@@ -156,11 +156,7 @@ class AwsGetRegionFromZoneTestCase(unittest.TestCase):
 
 
 class AwsGetBlockDeviceMapTestCase(unittest.TestCase):
-<<<<<<< 7ce250dbd0cd5c93b0781be04621693ae93cdc1f
 
-=======
-  
->>>>>>> Tests pass for GetBlockDeviceMap
   def setUp(self):
     p = mock.patch(util.__name__ + '.IssueRetryableCommand')
     p.start()
@@ -170,31 +166,21 @@ class AwsGetBlockDeviceMapTestCase(unittest.TestCase):
                         'data', 'describe_image_output.txt')
     with open(path) as fp:
       self.describeImageOutput = fp.read()
-<<<<<<< 7ce250dbd0cd5c93b0781be04621693ae93cdc1f
 
-=======
- 
->>>>>>> Tests pass for GetBlockDeviceMap
   def testInvalidMachineType(self):
     self.assertEqual(aws_virtual_machine.GetBlockDeviceMap('invalid'), None)
 
   def testValidMachineTypeWithNoRootVolumeSize(self):
-<<<<<<< 7ce250dbd0cd5c93b0781be04621693ae93cdc1f
     expected = [{"DeviceName": "/dev/xvdb",
                  "VirtualName": "ephemeral0"}]
     actual = json.loads(aws_virtual_machine.GetBlockDeviceMap('c1.medium'))
     self.assertEqual(actual, expected)
-=======
-    expected = '[{"DeviceName": "/dev/xvdb", "VirtualName": "ephemeral0"}]'
-    self.assertEqual(aws_virtual_machine.GetBlockDeviceMap('c1.medium'), expected)
->>>>>>> Tests pass for GetBlockDeviceMap
 
   def testValidMachineTypeWithSpecifiedRootVolumeSize(self):
     util.IssueRetryableCommand.side_effect = [(self.describeImageOutput, None)]
     desired_root_volume_size_gb = 35
     machine_type = 'c1.medium'
     image_id = 'ami-a9d276c9'
-<<<<<<< 7ce250dbd0cd5c93b0781be04621693ae93cdc1f
     expected = [{'DeviceName': '/dev/sda1',
                  'Ebs': {'SnapshotId': 'snap-826344d5',
                          'DeleteOnTermination': True,
@@ -207,12 +193,6 @@ class AwsGetBlockDeviceMapTestCase(unittest.TestCase):
     self.assertEqual(actual, expected)
 
 
-=======
-    expected = '[{"DeviceName": "/dev/sda1", "Ebs": {"SnapshotId": "snap-826344d5", "DeleteOnTermination": true, "VolumeType": "gp2", "VolumeSize": 35, "Encrypted": false}}, {"DeviceName": "/dev/xvdb", "VirtualName": "ephemeral0"}]'   
-    self.assertEqual(aws_virtual_machine.GetBlockDeviceMap(
-        machine_type, desired_root_volume_size_gb, image_id), expected)
-
->>>>>>> Tests pass for GetBlockDeviceMap
 class AwsGetRootBlockDeviceSpecForImageTestCase(unittest.TestCase):
 
   def setUp(self):
@@ -224,7 +204,6 @@ class AwsGetRootBlockDeviceSpecForImageTestCase(unittest.TestCase):
                         'data', 'describe_image_output.txt')
     with open(path) as fp:
       self.describeImageOutput = fp.read()
-<<<<<<< 7ce250dbd0cd5c93b0781be04621693ae93cdc1f
 
   def testOk(self):
     util.IssueRetryableCommand.side_effect = [(self.describeImageOutput, None)]
@@ -239,12 +218,5 @@ class AwsGetRootBlockDeviceSpecForImageTestCase(unittest.TestCase):
             'Encrypted': False
         }
     }
-=======
-    
-  def testOk(self):
-    util.IssueRetryableCommand.side_effect = [(self.describeImageOutput, None)]
-    image_id = 'ami-a9d276c9'
-    expected = {'DeviceName': '/dev/sda1', 'Ebs': {'SnapshotId': 'snap-826344d5', 'DeleteOnTermination': True, 'VolumeType': 'gp2', 'VolumeSize': 8, 'Encrypted': False}}
->>>>>>> Tests pass for GetBlockDeviceMap
     actual = aws_virtual_machine.GetRootBlockDeviceSpecForImage(image_id)
     self.assertEqual(actual, expected)

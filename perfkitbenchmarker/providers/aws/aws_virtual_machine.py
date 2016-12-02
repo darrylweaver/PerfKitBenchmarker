@@ -165,6 +165,7 @@ def GetBlockDeviceMap(machine_type, root_volume_size_gb=None, image_id=None):
       raise ValueError("image_id must be provided if root_volume_size_gb is specified")
     root_block_device = GetRootBlockDeviceSpecForImage(image_id)
     root_block_device['Ebs']['VolumeSize'] = root_volume_size_gb
+    root_block_device['Ebs'].pop('Encrypted') # This key must be removed or the CLI will complain
     mappings.append(root_block_device)
     
 
@@ -462,9 +463,13 @@ class AwsVirtualMachine(virtual_machine.BaseVirtualMachine):
     elif IsPlacementGroupCompatible(self.machine_type):
       placement.append('GroupName=%s' % self.network.placement_group.name)
     placement = ','.join(placement)
+<<<<<<< cf7624642fdfd9c0b8e976b1d69aaf2a5361edf3
     block_device_map = GetBlockDeviceMap(self.machine_type,
                                          self.boot_disk_size,
                                          self.image)
+=======
+    block_device_map = GetBlockDeviceMap(self.machine_type, self.boot_disk_size, self.image)
+>>>>>>> Specifing root volume size (and not) seems to work on AWS
     create_cmd = util.AWS_PREFIX + [
         'ec2',
         'run-instances',

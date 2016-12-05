@@ -1,4 +1,4 @@
-# Copyright 2016 PerfKitBenchmarker Authors. All rights reserved.
+# Copyright 2015 PerfKitBenchmarker Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -7,12 +7,13 @@
 #   http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-
+# distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Runs NVIDIA's CUDA PCI-E bandwidth test 
+
+"""Runs NVIDIA's CUDA PCI-E bandwidth test
       (https://developer.nvidia.com/cuda-code-samples)
 """
 
@@ -25,10 +26,6 @@ from perfkitbenchmarker.linux_packages import cuda_toolkit_8
 
 
 FLAGS = flags.FLAGS
-
-flags.DEFINE_integer('magic_number', 90,
-                     'The percent of operations which are magic.',
-                     lower_bound=0, upper_bound=100)
 
 BENCHMARK_NAME = 'gpu_pcie_bandwidth'
 BENCHMARK_CONFIG = """
@@ -43,17 +40,12 @@ gpu_pcie_bandwidth:
           image: /ubuntu-os-cloud/ubuntu-1604-xenial-v20161115
           machine_type: n1-standard-4-k80x1
           zone: us-east1-d
+          boot_disk_size: 20
         AWS:
           image: ami-a9d276c9
-          machine_type: d2.xlarge
+          machine_type: p2.xlarge
           zone: us-west-2b
-          boot_disk_size: 56
-      disk_spec:
-        AWS:
-          disk_size: 7
-          disk_type: gp2
-        GCP:
-          disk_size: 7
+          boot_disk_size: 20
 """
 BENCHMARK_METRICS = ['Host to device bandwidth',
                      'Device to host bandwidth',

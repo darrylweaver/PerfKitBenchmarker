@@ -1,4 +1,4 @@
-# Copyright 2016 PerfKitBenchmarker Authors. All rights reserved.
+# Copyright 2015 PerfKitBenchmarker Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
 """Module containing CUDA toolkit 8 installation and cleanup functions."""
 
 
-# CUDA_TOOLKIT_UBUNTU = 'cuda-repo-ubuntu1604_8.0.44-1_amd64.deb'
-# CUDA_TOOLKIT_UBUNTU_URL = 'http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/%s' % CUDA_TOOLKIT_UBUNTU
-CUDA_TOOLKIT_UBUNTU = 'cuda-repo-ubuntu1604-8-0-local_8.0.44-1_amd64.deb'
-CUDA_TOOLKIT_UBUNTU_URL = 'https://storage.googleapis.com/p3rf-gpu-benchmark-dependencies/%s' % CUDA_TOOLKIT_UBUNTU
+CUDA_TOOLKIT_UBUNTU = 'cuda-repo-ubuntu1604_8.0.44-1_amd64.deb'
+CUDA_TOOLKIT_UBUNTU_URL =\
+    'http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/%s' %\
+    CUDA_TOOLKIT_UBUNTU
 CUDA_TOOLKIT_INSTALL_DIR = '/usr/local/cuda'
 
 
 def _MaximizeGPUClockSpeed(vm):
+  # TODO: This clock speed is currently specific to K80 GPUs
   vm.RemoteCommand('sudo nvidia-smi -pm 1')
-  vm.RemoteCommand('sudo nvidia-smi -ac 2505,875')  # TODO: Currently specific to K80 GPUs
+  vm.RemoteCommand('sudo nvidia-smi -ac 2505,875')
 
 
 def _Install(vm):
@@ -64,7 +65,7 @@ def CheckPrerequisites():
 
 def Uninstall(vm):
   """Removes the CUDA toolkit.
-     Note that reinstallation does not work correctly, i.e. you cannot reinstall 
+     Note that reinstallation does not work correctly, i.e. you cannot reinstall
      CUDA by calling _Install() again.
   """
   vm.RemoteCommand('rm %s' % CUDA_TOOLKIT_UBUNTU)

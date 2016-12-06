@@ -29,7 +29,7 @@ FLAGS = flags.FLAGS
 def CreateVolume(resource, name):
   """Creates a remote (Cinder) block volume."""
   vol_cmd = os_utils.OpenStackCLICommand(resource, 'volume', 'create', name)
-  vol_cmd.flags['availability-zone'] = resource.zone
+  vol_cmd.flags['availability-zone'] = FLAGS.openstack_volume_zone
   vol_cmd.flags['size'] = (FLAGS.openstack_volume_size or
                            REMOTE_VOLUME_DEFAULT_SIZE_GB)
   stdout, _, _ = vol_cmd.Issue()
@@ -40,7 +40,7 @@ def CreateVolume(resource, name):
 def CreateBootVolume(resource, name, image):
   """Creates a remote (Cinder) block volume with a boot image."""
   vol_cmd = os_utils.OpenStackCLICommand(resource, 'volume', 'create', name)
-  vol_cmd.flags['availability-zone'] = resource.zone
+  vol_cmd.flags['availability-zone'] = FLAGS.openstack_volume_zone
   vol_cmd.flags['image'] = image
   vol_cmd.flags['size'] = (FLAGS.openstack_volume_size or
                            GetImageMinDiskSize(resource, image))

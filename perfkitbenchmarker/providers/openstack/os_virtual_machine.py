@@ -362,13 +362,18 @@ class OpenStackVirtualMachine(virtual_machine.BaseVirtualMachine):
     return floating_ip
 
   def CreateScratchDisk(self, disk_spec):
-    disks_names = ('%s_data_%d_%d'
-                   % (self.name, len(self.scratch_disks), i)
-                   for i in range(disk_spec.num_striped_disks))
-    disks = [os_disk.OpenStackDisk(disk_spec, name, self.zone)
-             for name in disks_names]
+    if disk_spec.disk_type == 'local':
+      self.RemoteCommand('sudo mkdir -p {0} && sudo chown -R $USER:$USER {0}'
+         .format(disk_spec.mount_point))
+      self.scratch_disks.append(os_disk.OpenStackDisk(disk_spec,name='local',zone='local'))
+    else:
+      disks_names = ('%s_data_%d_%d'
+                     % (self.name, len(self.scratch_disks), i)
+                     for i in range(disk_spec.num_striped_disks))
+      disks = [os_disk.OpenStackDisk(disk_spec, name, self.zone)
+               for name in disks_names]
 
-    self._CreateScratchDiskFromDisks(disk_spec, disks)
+      self._CreateScratchDiskFromDisks(disk_spec, disks)
 
 
 class DebianBasedOpenStackVirtualMachine(OpenStackVirtualMachine,

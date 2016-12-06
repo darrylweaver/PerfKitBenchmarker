@@ -570,7 +570,7 @@ class ElasticsearchPublisher(SamplePublisher):
                 "properties": {
                     "timestamp": {
                         "type": "date",
-                        "format": "yyyy-MM-dd HH:mm:ss.SSSSSS"
+                        "format": "strict_date_optional_time||epoch_millis"
                     },
                     "value": {
                         "type": "double"
@@ -610,9 +610,10 @@ class ElasticsearchPublisher(SamplePublisher):
     for s in samples:
       sample = copy.deepcopy(s)
       # Make timestamp understandable by ES and human.
-      sample['timestamp'] = self._FormatTimestampForElasticsearch(
+      sample['@timestamp'] = self._FormatTimestampForElasticsearch(
           sample['timestamp']
       )
+      del sample['timestamp']
       # Keys cannot have dots for ES
       sample = self._deDotKeys(sample)
       # Add sample to the "perfkit index" of "result type" and using sample_uri
@@ -622,9 +623,9 @@ class ElasticsearchPublisher(SamplePublisher):
 
   def _FormatTimestampForElasticsearch(self, epoch_us):
     """Convert the floating epoch timestamp in micro seconds epoch_us to
-    yyyy-MM-dd HH:mm:ss.SSSSSS in string
+    yyyy-MM-ddTHH:mm:ss.SSSSSS in string
     """
-    ts = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(epoch_us))
+    ts = time.strftime('%Y-%m-%dT%H:%M:%S', time.gmtime(epoch_us))
     num_dec = ("%.6f" % (epoch_us - math.floor(epoch_us))).split('.')[1]
     new_ts = '%s.%s' % (ts, num_dec)
     return new_ts

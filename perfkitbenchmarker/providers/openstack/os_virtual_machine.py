@@ -336,6 +336,8 @@ class OpenStackVirtualMachine(virtual_machine.BaseVirtualMachine):
       self.floating_ip = self._AllocateFloatingIP()
       self.internal_ip = self.ip_address
       self.ip_address = self.floating_ip['ip']
+    else:
+      self.internal_ip = self.ip_address
 
   def _GetNetworkIPAddress(self, server_dict, network_name):
     addresses = server_dict['addresses'].split(',')

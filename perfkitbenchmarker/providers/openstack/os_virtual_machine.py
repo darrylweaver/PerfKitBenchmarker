@@ -68,6 +68,7 @@ class OpenStackVirtualMachine(virtual_machine.BaseVirtualMachine):
     self.key_name = 'perfkit_key_%s' % FLAGS.run_uri
     self.user_name = FLAGS.openstack_image_username
     self.image = self.image or self.DEFAULT_IMAGE
+    self.region = FLAGS.openstack_region
     # FIXME(meteorfox): Remove --openstack_public_network and
     # --openstack_private_network once depreciation time has expired
     self.network_name = (FLAGS.openstack_network or
@@ -160,16 +161,16 @@ class OpenStackVirtualMachine(virtual_machine.BaseVirtualMachine):
   def _CheckPrerequisites(self):
     """Checks prerequisites are met otherwise aborts execution."""
     self._CheckCanaryCommand()
-    if self.zone in self.validated_resources_set:
+    if self.region in self.validated_resources_set:
       return  # No need to check again
     with self._lock:
-      if self.zone in self.validated_resources_set:
+      if self.region in self.validated_resources_set:
         return
       logging.info('Validating prerequisites.')
       self._CheckImage()
       self._CheckFlavor()
       self._CheckNetworks()
-      self.validated_resources_set.add(self.zone)
+      self.validated_resources_set.add(self.region)
       logging.info('Prerequisites validated.')
 
   def _CheckImage(self):
@@ -230,28 +231,28 @@ class OpenStackVirtualMachine(virtual_machine.BaseVirtualMachine):
   def _UploadSSHPublicKey(self):
     """Uploads SSH public key to the VM's region."""
     with self._lock:
-      if self.zone in self.uploaded_keypair_set:
+      if self.region in self.uploaded_keypair_set:
         return
       cmd = os_utils.OpenStackCLICommand(self, 'keypair', 'create',
                                          self.key_name)
       cmd.flags['public-key'] = self.ssh_public_key
       cmd.IssueRetryable()
-      self.uploaded_keypair_set.add(self.zone)
+      self.uploaded_keypair_set.add(self.region)
       if self.zone in self.deleted_keypair_set:
-        self.deleted_keypair_set.remove(self.zone)
+        self.deleted_keypair_set.remove(self.region)
 
   def _DeleteSSHPublicKey(self):
     """Deletes SSH public key used for the VM."""
     with self._lock:
-      if self.zone in self.deleted_keypair_set:
+      if self.region in self.deleted_keypair_set:
         return
       cmd = os_utils.OpenStackCLICommand(self, 'keypair', 'delete',
                                          self.key_name)
       del cmd.flags['format']  # keypair delete does not support json output
       cmd.Issue()
-      self.deleted_keypair_set.add(self.zone)
+      self.deleted_keypair_set.add(self.region)
       if self.zone in self.uploaded_keypair_set:
-        self.uploaded_keypair_set.remove(self.zone)
+        self.uploaded_keypair_set.remove(self.region)
 
   def _CreateInstance(self):
     """Execute command for creating an OpenStack VM instance."""

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from perfkitbenchmarker import flags
+import os
 
 flags.DEFINE_string('openstack_cli_path',
                     default='openstack',
@@ -30,6 +31,10 @@ flags.DEFINE_string('openstack_additional_flags',
                     default=[],
                     help='Additional flags to pass to every OpenStack CLI '
                          'command. See "openstack --help" for more.')
+
+flags.DEFINE_string('openstack_region',
+                    os.getenv('OS_REGION_NAME', 'RegionOne'),
+                    help='OpenStack region name, defaults to $OS_REGION_NAME')
 
 flags.DEFINE_string('openstack_public_network', None,
                     '(DEPRECATED: Use openstack_floating_ip_pool) '

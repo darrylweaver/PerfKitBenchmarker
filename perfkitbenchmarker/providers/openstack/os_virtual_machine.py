@@ -204,18 +204,9 @@ class OpenStackVirtualMachine(virtual_machine.BaseVirtualMachine):
       self._CheckFloatingIPNetworkExists()
 
   def _CheckFloatingIPNetworkExists(self):
-    cmd = os_utils.OpenStackCLICommand(self, 'ip', 'floating', 'pool', 'list')
-    stdout, stderr, _ = cmd.Issue()
-    resp = json.loads(stdout)
-    for flip_pool in resp:
-      if flip_pool['Name'] == self.floating_ip_pool_name:
-        break
-    else:
-      raise errors.Config.InvalidValue(' '.join(
-          ('Floating IP pool %s could not be found.'
-           % self.floating_ip_pool_name,
-           'For valid floating IP pools run '
-           '"openstack ip floating pool list".',)))
+    cmd = os_utils.OpenStackCLICommand(self, 'network', 'show', self.floating_ip_pool_name)
+    err_msg = VALIDATION_ERROR_MESSAGE.format('Network', self.floating_ip_pool_name)
+    self._IssueCommandCheck(cmd, err_msg)
 
   def _CheckNetworkExists(self):
     cmd = os_utils.OpenStackCLICommand(self, 'network', 'show',

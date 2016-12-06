@@ -135,8 +135,8 @@ class OpenStackFloatingIPPool(object):
   def associate(self, vm):
     with self._floating_ip_lock:
       floating_ip = self._get_or_create(vm)
-      cmd = utils.OpenStackCLICommand(vm, OSC_IP_CMD, OSC_FLOATING_SUBCMD,
-                                      'add', floating_ip['ip'], vm.id)
+      cmd = utils.OpenStackCLICommand(vm, 'server', 'add', OSC_FLOATING_SUBCMD,
+                                      OSC_IP_CMD, vm.id, floating_ip['ip'])
       del cmd.flags['format']  # Command does not support json output format
       _, stderr, _ = cmd.Issue()
       if stderr:
@@ -154,7 +154,7 @@ class OpenStackFloatingIPPool(object):
     return self._allocate(vm)
 
   def _allocate(self, vm):
-    cmd = utils.OpenStackCLICommand(vm, OSC_IP_CMD, OSC_FLOATING_SUBCMD,
+    cmd = utils.OpenStackCLICommand(vm, OSC_FLOATING_SUBCMD, OSC_IP_CMD,
                                     'create', self.ip_pool_name)
     stdout, stderr, _ = cmd.Issue()
     if stderr.strip():  # Strip spaces
@@ -168,15 +168,15 @@ class OpenStackFloatingIPPool(object):
     return floating_ip_dict
 
   def release(self, vm, floating_ip_dict):
-    cmd = utils.OpenStackCLICommand(vm, OSC_IP_CMD, OSC_FLOATING_SUBCMD, 'show',
+    cmd = utils.OpenStackCLICommand(vm, OSC_FLOATING_SUBCMD, OSC_IP_CMD, 'show',
                                     floating_ip_dict['id'])
     stdout, stderr, _ = cmd.Issue(suppress_warning=True)
     if stderr:
       return  # Not found, moving on
     updated_floating_ip_dict = json.loads(stdout)
     with self._floating_ip_lock:
-      delete_cmd = utils.OpenStackCLICommand(vm, OSC_IP_CMD,
-                                             OSC_FLOATING_SUBCMD, 'delete',
+      delete_cmd = utils.OpenStackCLICommand(vm, OSC_FLOATING_SUBCMD,
+                                             OSC_IP_CMD, 'delete',
                                              updated_floating_ip_dict['id'])
       del delete_cmd.flags['format']  # Command not support json output format
       stdout, stderr, _ = delete_cmd.Issue(suppress_warning=True)
